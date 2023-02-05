@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
 #include <net/if.h>
 #include <linux/if_tun.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <iomanip>
 #include <arpa/inet.h>
 #include <cstdlib>
@@ -38,16 +38,26 @@ int main()
     }
 
     uint8_t buffer[2048];
-    int nbytes = read(tun_fd, buffer, sizeof(buffer));
 
-    if (nbytes < 0)
-    {
-        perror("Failed to read from tun interface");
-        return 1;
+    while (true) {
+        int nbytes = read(tun_fd, buffer, sizeof(buffer));
+
+        if (nbytes < 0)
+        {
+            perror("Failed to read from tun interface");
+            return 1;
+        }
+
+        uint16_t protocol = (buffer[2] << 8) | buffer[3];
+
+        if (protocol != 0x800) {
+            // Ignoring ip packets other than an IPV4
+            continue;
+        }
+
+        uint8_t packetProtocol = buffer[13];
+        std::cout << std::hex << "Ipv4 packet protocol: " << (packetProtocol << 8) << std::endl;
     }
-
-    uint16_t protocol = (buffer[2] << 8) | buffer[3];
-    std::cout << std::hex << protocol << std::endl;
 
     close(tun_fd);
     return 0;
