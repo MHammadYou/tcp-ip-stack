@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #include <cstdlib>
 
-#include "ipv4.cpp"
+#include "headers.cpp"
 
 const char* TUN_DEVICE = "/dev/net/tun";
 const char* TUN_NAME = "tun0";
@@ -41,7 +41,8 @@ int main()
 
     uint8_t buffer[2048];
 
-    while (true) {
+    while (true) 
+    {
 
         int nbytes = read(tun_fd, buffer, sizeof(buffer));
 
@@ -53,13 +54,24 @@ int main()
 
         uint16_t protocol = (buffer[2] << 8) | buffer[3];
 
-        if (protocol != 0x800) {
+        if (protocol != 0x800) 
+        {
             // Ignoring ip packets other than an IPV4
             continue;
         }
 
         Ipv4Header *ipHeader = (Ipv4Header *)(buffer + 4);
-        std::cout << std::hex << "Ipv4 packet protocol: " << (ipHeader->protocol << 8) << std::endl;
+        if (ipHeader->protocol << 8 != 0x600) 
+        {
+            // Ignore ip packets other than TCP
+            continue;
+        }
+
+        std::cout << 
+            inet_ntoa(ipHeader->source) << " -> " << 
+            inet_ntoa(ipHeader->destination) << 
+            " read " << (ipHeader->versionAndHeaderLength & 0x0f) * 4 << " bytes of data" << 
+        std::endl;
     }
 
     close(tun_fd);

@@ -14,3 +14,15 @@ struct Ipv4Header
     in_addr source;
     in_addr destination;
 };
+
+struct TcpHeader
+{
+    uint16_t sourcePort;
+    uint16_t destinationPort;
+    uint32_t sequenceNumber;
+    uint32_t acknowledgeNumber;
+    uint16_t dataOffsetAndFlags;  // data offset(4) + reserved(6) + flags(6)
+    uint16_t windowSize;
+    uint16_t checkSum;
+    uint16_t urgentPointer;
+};
