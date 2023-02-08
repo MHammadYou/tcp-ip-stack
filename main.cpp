@@ -56,7 +56,7 @@ int main()
 
         if (protocol != 0x800) 
         {
-            // Ignoring ip packets other than an IPV4
+            // Ignore ip packets other than an IPv4
             continue;
         }
 
@@ -67,11 +67,18 @@ int main()
             continue;
         }
 
+        auto IHL = (ipHeader->versionAndHeaderLength & 0x0f) * 4;
+
         std::cout << 
             inet_ntoa(ipHeader->source) << " -> " << 
             inet_ntoa(ipHeader->destination) << 
-            " read " << (ipHeader->versionAndHeaderLength & 0x0f) * 4 << " bytes of data" << 
+            " read " << IHL << " bytes of data" << 
         std::endl;
+
+        TcpHeader *tcpHeader = (TcpHeader *)(buffer + 4 + IHL + 2);
+
+        std::cout << std::hex << "Source port: " << ntohs(tcpHeader->sourcePort) << std::endl;
+        std::cout << std::hex << "Destination port: " << ntohs(tcpHeader->destinationPort) << std::endl;
     }
 
     close(tun_fd);
