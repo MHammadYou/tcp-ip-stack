@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #include <cstdlib>
 
-#include "headers.cpp"
+#include "headers.h"
 
 const char* TUN_DEVICE = "/dev/net/tun";
 const char* TUN_NAME = "tun0";
